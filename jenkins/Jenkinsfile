@@ -21,7 +21,7 @@ pipeline{
         stage('Auth'){
             steps{
                 withCredentials([file(credentialsId: 'jenkins-sa', variable: 'FILE')]) {
-                    sh label: '', script: "gcloud auth activate-service-account ${SERVICE_ACCOUNT} --key-file $FILE --project loadout-incoming";
+                    sh label: '', script: "gcloud auth activate-service-account ${SERVICE_ACCOUNT} --key-file $FILE --project radiant-oven-345219";
                 }
                 
             }
