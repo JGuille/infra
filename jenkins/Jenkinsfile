@@ -1,0 +1,55 @@
+pipeline{
+    agent any
+    parameters {
+        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Pick something')
+    }
+    environment {
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('jenkins-sa')
+        GITHUB_URL = "https://github.com/JGuille/infra"
+        SERVICE_ACCOUNT = "task.json"
+    }
+    tools {
+        terraform 'Terraform'
+    }
+
+    stages{
+        stage('Git Checkout'){
+            steps{
+                git credentialsId: 'git-user', url: "${GITHUB_URL}"
+            }
+        }
+        stage('Auth'){
+            steps{
+                withCredentials([file(credentialsId: 'jenkins-sa', variable: 'FILE')]) {
+                    sh label: '', script: "gcloud auth activate-service-account ${SERVICE_ACCOUNT} --key-file $FILE --project loadout-incoming";
+                }
+                
+            }
+        }
+        stage('Terraform Init'){
+            steps{
+                sh label: '', script: "terraform init";
+            }
+        }
+        stage('Terraform Validate'){
+            steps{
+                sh label: '', script: "terraform validate";
+            }
+        }
+        stage('Terraform Plan'){
+            steps{
+                sh label: '', script: "terraform plan -out=final-demo.tfplan";
+            }
+        }
+        stage('Terraform Action'){
+            steps{
+                sh label: '', script: "terraform ${params.ACTION} -auto-approve";
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
