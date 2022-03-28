@@ -8,9 +8,9 @@ pipeline{
         GITHUB_URL = "https://github.com/JGuille/infra"
         SERVICE_ACCOUNT = "terraform@radiant-oven-345219.iam.gserviceaccount.com"
     }
-    // tools {
-    //     terraform 'Terraform'
-    // }
+    tools {
+        terraform 'Terraform'
+    }
 
     stages{
         stage('Git Checkout'){
